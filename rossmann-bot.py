@@ -3,7 +3,7 @@ import json
 import os
 import pandas as pd
 import requests
-from flask import Flask, request, Response 
+from flask import Flask , request, Response 
 
 # constants
 TOKEN = '8913649606:AAFPrM9XqDy6hNSDl3RcnltxANsXV1Q98t0'
@@ -34,7 +34,7 @@ def load_dataset(store_id):
     df_store_raw = pd.read_csv('store.csv')
 
     # merge test dataset + store
-    df_test = pd.merge(df10OB, df_store_raw, how='left', on='Store')
+    df_test = pd.merge(df10, df_store_raw, how='left', on='Store')
 
     # choose store for prediction
     df_test = df_test[df_test['Store']== store_id]
@@ -53,6 +53,7 @@ def load_dataset(store_id):
 
 def predict(data):
     # API Call
+    url = 'https://rossmann-hander-api.onrender.com'
     #url = 'https://rossmann-model-test.herokuapp.com/rossmann/predict'
     header = {'Content-type': 'application/json' }
     data = data
