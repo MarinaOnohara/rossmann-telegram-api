@@ -88,8 +88,8 @@ class Rossmann( object ):
         # day
         df2['day'] = df2['date'].dt.day
 
-        # week of year
-        df2['week_of_year'] = df2['date'].dt.weekofyear
+         # week of year
+        df2['week_year'] = df2['date'].dt.isocalendar().week
 
         # year week
         df2['year_week'] = df2['date'].dt.strftime( '%Y-%W' )
@@ -164,8 +164,8 @@ class Rossmann( object ):
         df5['day_cos'] = df5['day'].apply( lambda x: np.cos( x * ( 2. * np.pi/30 ) ) )
 
         # week of year
-        df5['week_of_year_sin'] = df5['week_of_year'].apply( lambda x: np.sin(x * ( 2. * np.pi/52 ) ) )
-        df5['week_of_year_cos'] = df5['week_of_year'].apply( lambda x: np.cos(x * ( 2. * np.pi/52 ) ) )
+        df5['week_of_year_sin'] = df5['week_year'].apply( lambda x: np.sin(x * ( 2. * np.pi/52 ) ) )
+        df5['week_of_year_cos'] = df5['week_year'].apply( lambda x: np.cos(x * ( 2. * np.pi/52 ) ) )
         
         cols_selected = [ 'store', 'promo', 'store_type', 'assortment','competition_distance', 'competition_open_since_month',
         'competition_open_since_year', 'promo2', 'promo2_since_week','promo2_since_year', 'competition_time_month', 'promo_time_week',
