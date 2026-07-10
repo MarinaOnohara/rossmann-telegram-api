@@ -21,7 +21,7 @@ log(f"arquivos na raiz: {os.listdir('.')}")
 
 log("carregando modelo...")
 #loading model
-model = pickle.load( open('model/model_rossman.pkl', 'rb'))
+model = pickle.load( open('model/model_rossmann.pkl', 'rb'))
 log(f"modelo carregado em {time.time() - t0:.2f}s")
 
 log("inicializando Flask app...")
