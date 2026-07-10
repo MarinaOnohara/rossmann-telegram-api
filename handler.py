@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 import time
 
-from flask import Flask, Request, Response
+from flask import Flask, request, Response
 from rossmann.Rossmann import Rossmann
 
 
@@ -31,7 +31,7 @@ log("Flask app criado")
 
 @app.route( '/rossmann/predict', methods=['POST'] )
 def rossmann_predict():
-    test_json = Request.get_json()
+    test_json = request.get_json()
     
     if test_json: # sehouver dados
         try:
