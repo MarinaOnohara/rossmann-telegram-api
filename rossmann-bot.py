@@ -3,7 +3,7 @@ import json
 import os
 import pandas as pd
 import requests
-from flask import Flask , Request, Response 
+from flask import Flask , request, Response 
 
 
 # constants
@@ -54,7 +54,7 @@ def load_dataset(store_id):
 
 def predict(data):
     # API Call
-    url = 'https://rossmann-hander-api.onrender.com'
+    url = 'https://webapp-i4tf.onrender.com/rossmann/predict'
     header = {'Content-type': 'application/json' }
     data = data
 
@@ -120,8 +120,8 @@ if __name__ =='__main__':
 
 def load_dataset(store_id):
     # loading test dataset
-    df10 = pd.read_csv( '../Dataset/test.csv')
-    df_store_raw = pd.read_csv('../Dataset/store.csv')
+    df10 = pd.read_csv( 'test.csv')
+    df_store_raw = pd.read_csv('store.csv')
 
     # merge test dataset + store
     df_test = pd.merge(df10, df_store_raw, how='left', on='Store')
@@ -141,7 +141,7 @@ def load_dataset(store_id):
 
 def predict(data):
     # API Call
-    url = 'https://rossmann-hander-api.onrender.com'
+    url = 'https://webapp-i4tf.onrender.com/rossmann/predict'
     header = {'Content-type': 'application/json' }
     data = data
 
@@ -152,10 +152,62 @@ def predict(data):
 
     return d1
 
-#d2 = d1[['store', 'prediction']].groupby('store').sum().reset_index()
-#
-#for i in range (len(d2)):
-#    print ('Store Number {} will sell R${:,.2f} in the next 6 weeks'.format(
-#        d2.loc[i, 'store'],
-#        d2.loc[i, 'prediction'] ) )
+def parse_message( message ):
+    chat_id = message['message']['chat']['id']
+    store_id = message['message']['text']
 
+    store_id = store_id.replace( '/', '' )
+
+    try:
+        store_id = int( store_id )
+
+    except ValueError:
+        store_id = 'error'
+
+    return chat_id, store_id
+
+# API initialize
+app = Flask( __name__ )
+
+# 1. Rota que o Render usa para checar se o bot está online (Acessível via navegador)
+@app.route( '/', methods=['GET'] )
+def health():
+    return '<h1> Rossmann Telegram BOT está online! </h1>'
+
+# 2. Rota exclusiva e segura que o Telegram vai usar para enviar as mensagens (Webhook)
+@app.route( '/' + TOKEN, methods=['POST'] )
+def index():
+    message = request.get_json()
+
+    chat_id, store_id = parse_message( message )
+
+    if store_id != 'error':
+        # loading data
+        data = load_dataset( store_id )
+
+        if data != 'error':
+            # prediction
+            d1 = predict( data )
+
+            # calculation
+            d2 = d1[['store', 'prediction']].groupby( 'store' ).sum().reset_index()
+            
+            # send message
+            msg = 'Store Number {} will sell R${:,.2f} in the next 6 weeks'.format(
+                        d2['store'].values[0],
+                        d2['prediction'].values[0] ) 
+
+            send_message( chat_id, msg )
+            return Response( 'Ok', status=200 )
+
+        else:
+            send_message( chat_id, 'Store Not Available' )
+            return Response( 'Ok', status=200 )
+
+    else:
+        send_message( chat_id, 'Store ID is Wrong' )
+        return Response( 'Ok', status=200 )
+
+if __name__ == '__main__':
+    port = os.environ.get( 'PORT', 5000 )
+    app.run( host='0.0.0.0', port=port )
