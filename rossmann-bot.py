@@ -3,7 +3,7 @@ import json
 import os
 import pandas as pd
 import requests
-from flask import Flask , request, Response 
+from flask import Flask , Request, Response 
 
 
 # constants
@@ -24,7 +24,7 @@ TOKEN = '8913649606:AAFPrM9XqDy6hNSDl3RcnltxANsXV1Q98t0'
 def send_message(chat_id, text):
     url = 'https://api.telegram.org/bot{}/'.format(TOKEN)
     url = url + 'sendMessage?chat_id={}'.format(chat_id)
-    r = request.post(url,json={'text': text })
+    r = requests.post(url,json={'text': text })
     
     print('Status Code{}'.format(r.status_code) ) 
     return None
